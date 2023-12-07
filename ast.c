@@ -40,8 +40,10 @@ ASTNode *ast_from_lexer(Lexer *lexer)
 #define CHECK_BOUNDS(i)                                                        \
     if (!(i < tokens->size))                                                   \
         goto bounds_error;
+
     ASTNode *node = ast_node_new();
     LIST_TYPEOF(Token) *tokens = lexer->tokens;
+
     int i = 0;
     while (i < tokens->size)
     {
@@ -53,6 +55,16 @@ ASTNode *ast_from_lexer(Lexer *lexer)
                 CHECK_BOUNDS(++i);
                 DeclarationExpression *expr = declaration_expr_new();
                 Token *varToken = tokens->items[i];
+                CHECK_BOUNDS(++i);
+                Token *opToken = tokens->items[i];
+                if (opToken->type != TOKEN_TYPE_OPERATOR ||
+                    *opToken->value != '=')
+                {
+                    snprintf(error, 50,
+                             "expected '=' operator after def, got %c",
+                             *opToken->value);
+                    goto err;
+                }
                 if (varToken->type != TOKEN_TYPE_IDENTIFIER)
                 {
                     snprintf(error, 50,
@@ -62,8 +74,23 @@ ASTNode *ast_from_lexer(Lexer *lexer)
                 }
                 expr->var = string_expr_new();
                 expr->var->value = varToken->value;
+                expr->var->type = TYPE_IDENTIFIER;
                 varToken->value =
                     NULL; // prevent free if lexer is destroyed b4 ast is done
+                CHECK_BOUNDS(++i);
+                Token *valToken = tokens->items[i];
+                if (valToken->type == TOKEN_TYPE_STRING)
+                {
+                    StringExpression *strExpr = string_expr_new();
+                    strExpr->value = valToken->value;
+                    valToken->value = NULL;
+                    expr->value = (ASTExpression *)strExpr;
+                }
+                else
+                {
+                    SET_ERROR("type is not a string!");
+                    goto err;
+                }
                 LIST_PUSH(node->body, expr);
             }
         }
@@ -86,7 +113,9 @@ void expr__print(ASTExpression *expr, int indent)
     case TYPE_DECLARATION:
     {
         DeclarationExpression *declExpr = (DeclarationExpression *)expr;
-        printf("DeclarationExpression: %s\n", declExpr->var->value);
+        StringExpression *val = (StringExpression *)declExpr->value;
+        printf("DeclarationExpression: %s = %s\n", declExpr->var->value,
+               val->value);
     }
     break;
     case TYPE_STRING:

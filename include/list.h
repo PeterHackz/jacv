@@ -3,6 +3,7 @@
 
 #include "stdbool.h"
 #include "stdlib.h"
+#include <string.h>
 
 #define LIST_FIELDS                                                            \
     int size;                                                                  \
