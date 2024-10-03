@@ -1,7 +1,8 @@
 
 #define TOKENS                                                                 \
     FIELD(UNKNOWN)                                                             \
-    FIELD(NUMBER)                                                              \
+    FIELD(NUMBER_INT)                                                          \
+    FIELD(NUMBER_FLOAT)                                                        \
     FIELD(STRING)                                                              \
     FIELD(IDENTIFIER)                                                          \
     FIELD(KEYWORD)                                                             \

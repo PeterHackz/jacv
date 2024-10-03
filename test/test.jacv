@@ -1,0 +1,22 @@
+def x: Int = 0 + 3 * 42 / 0xFF + (2 + 3) * 6 // TODO: highlight Int/vars types
+
+def ArrayList = struct<T> {
+    items Array<T>;
+    capacity U8;
+}
+
+fn ArrayList<T>@add(elem T) void {
+    this.items.add(elem); // TODO: fix variable being highlighted as a typw
+}
+
+fn newList<T>() ArrayList<T> {
+    return ArrayList(
+        Array<T>(10),
+        10
+    )
+}
+
+def emptyList = ArrayList<Int>(default)
+def emptyListWithCap = newList<Int>()
+
+emptyList.add(1)

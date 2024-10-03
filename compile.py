@@ -3,11 +3,11 @@ import platform
 
 path = os.getcwd()
 
-files = os.listdir(path)
+files = os.listdir(path + "/src")
 
-files = [file for file in files if file[-2:] == ".c" or file[-2:] == ".h"]
+files = ["src/" + file for file in files if file[-2:] == ".c" or file[-2:] == ".h"]
 
-compiler = "gcc -g -I include"
+compiler = "clang -g -I include"
 
 command = (
     compiler

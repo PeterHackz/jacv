@@ -1,6 +1,7 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include "allocator.h"
 #include "stdbool.h"
 #include "stdlib.h"
 #include <string.h>
@@ -34,36 +35,36 @@ typedef struct
         BLOCK                                                                  \
     }
 
-#define LIST_NEW(size) LIST_NEW_WITH_SIZE(10)
-#define LIST_NEW_WITH_SIZE(lsize)                                              \
+#define LIST_NEW(size, jctx) LIST_NEW_WITH_SIZE(size, jctx)
+#define LIST_NEW_WITH_SIZE(lsize, jctx)                                        \
     ({                                                                         \
-        ListT *list = (ListT *)MALLOC(sizeof(ListT));                          \
+        ListT *list = (ListT *)JContext_alloc(jctx, (sizeof(ListT)));          \
         list->size = 0;                                                        \
         list->capacity = lsize;                                                \
-        list->items = (void **)MALLOC(sizeof(void *) * lsize);                 \
+        list->items = (void **)JContext_alloc(jctx, (sizeof(void *) * lsize)); \
         list;                                                                  \
     })
 
-#define LIST_CREATE(type, size) (LIST_TYPEOF(type) *)LIST_NEW(size)
-#define LIST_CREATE_EMPTY(type) (LIST_TYPEOF(type) *)LIST_NEW(10)
+#define LIST_CREATE(type, size, jctx) (LIST_TYPEOF(type) *)LIST_NEW(size, jctx)
+#define LIST_CREATE_EMPTY(type, jctx) (LIST_TYPEOF(type) *)LIST_NEW(10, jctx)
 
 #define LIST_DECLARE(var, type, size)                                          \
     LIST_TYPEOF(type) *var = LIST_CREATE(type, size)
 #define LIST_DECLARE_EMPTY(var, type)                                          \
     LIST_TYPEOF(type) *var = LIST_CREATE(type, 10)
 
-int list_push(ListT *list, void *item);
+int list_push(ListT *list, void *item, Allocator *);
 bool list_remove(ListT *list, int index);
 int list_index_of(ListT *list, void *item);
 bool list_removeItem(ListT *list, void *item);
-void list_free(ListT *list);
+void list_free(ListT *list, Allocator *);
 void test();
 
-#define LIST_PUSH(list, item) list_push((ListT *)list, (void *)item)
+#define LIST_PUSH(list, item, allocator) list_push((ListT *)list, (void *)item, allocator)
 #define LIST_REMOVE(list, index) list_remove((ListT *)list, index)
 #define LIST_INDEX_OF(list, item) list_index_of((ListT *)list, (void *)item)
 #define LIST_REMOVE_ITEM(list, item)                                           \
     list_removeItem((ListT *)list, (void *)item)
-#define LIST_FREE(list) list_free((ListT *)list)
+#define LIST_FREE(list, allocator) list_free((ListT *)list, allocator)
 
 #endif // LIST_H

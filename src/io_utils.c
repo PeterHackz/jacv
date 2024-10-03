@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "include/io_utils.h"
+#include "io_utils.h"
 
-#include "include/jmemory.h"
+#include "jcontext.h"
 
-uint8_t *read_file(char *filename, int *size)
+uint8_t *read_file(JContext *jctx, char *filename, int *size)
 {
     uint8_t *buffer = NULL;
     FILE *file = NULL;
@@ -20,7 +20,7 @@ uint8_t *read_file(char *filename, int *size)
     fseek(file, 0, SEEK_END);
     *size = ftell(file);
     fseek(file, 0, SEEK_SET);
-    buffer = (uint8_t *)MALLOC(*size);
+    buffer = (uint8_t *)JContext_alloc(jctx, *size);
     if (buffer == NULL)
     {
         printf("Error: malloc failed\n");

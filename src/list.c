@@ -1,19 +1,18 @@
-#include "include/list.h"
+#include "list.h"
 #include <stdio.h>
 
-#include "include/jmemory.h"
-
-int list_push(ListT *list, void *item)
+int list_push(ListT *list, void *_item, Allocator *allocator)
 {
     if (list->size == list->capacity)
     {
         list->capacity *= 2;
-        void **items = (void **)MALLOC(sizeof(void *) * list->capacity);
-        LIST_FOREACH(list, void *, { items[idx] = item; });
-        FREE(list->items);
+        void **items = allocator->allocate(allocator->handle,
+                                           sizeof(void *) * list->capacity);
+        LIST_FOREACH(list, void *, { items[idx] = item; })
+        allocator->deallocate(allocator->handle, list->items);
         list->items = items;
     }
-    list->items[list->size++] = item;
+    list->items[list->size++] = _item;
     return list->size;
 }
 
@@ -45,8 +44,8 @@ bool list_removeItem(ListT *list, void *item)
     return list_remove(list, index);
 }
 
-void list_free(ListT *list)
+void list_free(ListT *list, Allocator *allocator)
 {
-    FREE(list->items);
-    FREE(list);
+    allocator->deallocate(allocator->handle, list->items);
+    allocator->deallocate(allocator->handle, list);
 }

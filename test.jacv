@@ -1,1 +1,23 @@
-def x = "hello, world"
+def x = z + 3 * 42/0xFF + (2 + 3) * 6
+
+def Iterator = struct<T>{
+    list Array<T>;
+    default index: Int = 0;
+}
+
+def Iterator<T>@next() ?T {
+    def idx: Int = self.index;
+    if (idx >= self.list.size()) {
+        return null;
+    }
+    self.index += 1
+    return self.list[idx]
+}
+
+def iter = Iterator<Int>(Array<Int>(0, 1, 2, 3))
+
+def next: Int = iter.next()
+
+while (next != null) {
+    next = iter.next()
+}
